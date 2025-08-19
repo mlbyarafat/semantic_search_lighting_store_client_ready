@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <title>Semantic Search · Lighting Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b1220;
+      --bg-soft: #0f172a;
+      --card: #0b1220;
+      --muted: #97a3b6;
+      --text: #e6eefc;
+      --accent: #38bdf8; /* sky-400 */
+      --accent-2: #a78bfa; /* violet-400 */
+      --ring: rgba(56, 189, 248, .55);
+      --shadow: 0 10px 30px rgba(2,8,23,.35);
+      --glass: rgba(255,255,255,.06);
+      --success: #34d399;
+      --error: #f87171;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg: #f1f5f9;
+        --bg-soft: #f8fafc;
+        --card: #ffffff;
+        --muted: #6b7280;
+        --text: #0b1220;
+        --shadow: 0 12px 30px rgba(2,8,23,.06);
+        --glass: rgba(15, 23, 42, .04);
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(56,189,248,.25), transparent 60%),
+                  radial-gradient(800px 400px at 90% -20%, rgba(167,139,250,.28), transparent 60%),
+                  linear-gradient(180deg, var(--bg-soft), var(--bg));
+      background-attachment: fixed;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    .container{width:min(1100px, 92%); margin-inline:auto}
+
+    /* Header */
+    .site-header{
+      position: sticky; top:0; z-index: 20;
+      backdrop-filter: saturate(140%) blur(10px);
+      background: linear-gradient(180deg, var(--glass), transparent);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .hero{ display:grid; grid-template-columns: 1fr; gap:22px; padding:28px 0 18px}
+    .brand{display:flex; align-items:center; gap:14px}
+    .logo{
+      width:42px; height:42px; border-radius:14px;
+      background: conic-gradient(from 220deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 20px rgba(56,189,248,.25), inset 0 0 20px rgba(255,255,255,.15);
+      display:grid; place-items:center;
+      color:white; font-weight:800;
+    }
+    h1{
+      font-family:Poppins, Inter, system-ui; font-weight:800; letter-spacing:-.02em; margin:0;
+      font-size: clamp(1.35rem, 1.1rem + 2vw, 2rem);
+    }
+    .tagline{margin:0; color:var(--muted); font-size: .98rem}
+
+    /* Search panel */
+    .search-panel{ margin: 18px 0 26px; }
+    .search-card{
+      background: linear-gradient(180deg, var(--glass), transparent);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      border-radius: 18px; padding: 18px; display:grid; gap:14px;
+    }
+    .controls{ display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:center }
+    .field{
+      display:flex; align-items:center; gap:10px; padding: 12px 14px; border-radius:14px;
+      background: var(--card); border:1px solid rgba(148,163,184,.18);
+      outline: 2px solid transparent; outline-offset: 2px; transition: box-shadow .2s, outline-color .2s;
+    }
+    .field:focus-within{ outline-color: var(--ring); box-shadow: 0 0 0 6px rgba(56,189,248,.15) }
+    .icon{width:20px; height:20px; opacity:.8}
+    input[type="search"]{
+      all:unset; flex:1; font-size:1rem; line-height:1.2; min-width:0; color:var(--text)
+    }
+    .btn{
+      appearance:none; border:none; cursor:pointer; font-weight:700; letter-spacing:.02em;
+      padding: 12px 16px; border-radius:14px; position:relative; overflow:hidden;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color:white; box-shadow: 0 10px 24px rgba(56,189,248,.25);
+      transition: transform .08s ease-out, filter .2s ease;
+    }
+    .btn:active{ transform: translateY(1px) scale(.995) }
+
+    .quickchips{ display:flex; flex-wrap:wrap; gap:8px }
+    .chip{
+      padding:8px 12px; border-radius:999px; font-size:.9rem; cursor:pointer;
+      background: rgba(148,163,184,.14); border:1px solid rgba(148,163,184,.2);
+      transition: background .15s, transform .08s
+    }
+    .chip:hover{ background: rgba(148,163,184,.2) }
+
+    .status{min-height:24px; font-size:.95rem}
+    .status.ok{ color: var(--success) }
+    .status.err{ color: var(--error) }
+
+    /* Results */
+    .results-grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; }
+    @media (max-width: 1200px){ .results-grid{ grid-template-columns: repeat(8, 1fr) } }
+    @media (max-width: 800px){ .results-grid{ grid-template-columns: repeat(6, 1fr) } }
+    @media (max-width: 640px){ .results-grid{ grid-template-columns: repeat(4, 1fr) } }
+
+    .card{ grid-column: span 4; background: var(--card); border:1px solid rgba(148,163,184,.18);
+      border-radius:18px; overflow:hidden; box-shadow: var(--shadow); display:flex; flex-direction:column; min-height: 160px;
+      animation: fadeIn .4s ease both }
+    @media (max-width: 800px){ .card{ grid-column: span 6 } }
+    @media (max-width: 640px){ .card{ grid-column: span 4 } }
+
+    .thumb{ aspect-ratio: 16/10; width:100%; background: linear-gradient(90deg, rgba(148,163,184,.15), rgba(148,163,184,.08)); display:grid; place-items:center }
+    .thumb svg{ width:40px; height:40px; opacity:.6 }
+
+    .content{ padding:14px 14px 16px; display:grid; gap:8px }
+    .title{ margin:0; font-size:1.02rem; font-weight:700; letter-spacing:.01em }
+    .desc{ margin:2px 0 0; color: var(--muted); line-height:1.5 }
+    .meta{ margin-top:6px; font-size:.92rem; color: var(--muted) }
+
+    /* Skeletons */
+    .skeleton{ position:relative; overflow:hidden; background: rgba(148,163,184,.18) }
+    .skeleton::after{ content:""; position:absolute; inset:0; transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+      animation: shimmer 1.25s infinite }
+
+    @keyframes shimmer{ 100%{ transform:translateX(100%) } }
+    @keyframes fadeIn{ from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
+
+    /* Footer */
+    .site-footer{ margin:40px 0 60px; color:var(--muted); font-size:.95rem }
+    .muted-box{ background: linear-gradient(180deg, var(--glass), transparent); border:1px solid rgba(148,163,184,.18); border-radius:14px; padding:12px }
+
+    /* Utility */
+    .hidden{ display:none }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container hero">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">⚡</div>
+        <div>
+          <h1>Lighting Store — Semantic Search</h1>
+          <p class="tagline">Client-ready demo: fast, accurate product search powered by TF‑IDF similarity.</p>
+        </div>
+      </div>
+      <div class="search-panel">
+        <div class="search-card">
+          <div class="controls">
+            <label class="field" for="query">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+              <input id="query" type="search" placeholder="Try: wooden lamp, LED desk lamp, brass chandelier…" autocomplete="off" />
+            </label>
+            <button id="searchBtn" class="btn" aria-label="Search">Search</button>
+          </div>
+          <div class="quickchips" aria-label="Suggestions">
+            <button class="chip" data-q="wooden table lamp">Wooden table lamp</button>
+            <button class="chip" data-q="modern floor lamp">Modern floor lamp</button>
+            <button class="chip" data-q="brass chandelier">Brass chandelier</button>
+            <button class="chip" data-q="LED desk light">LED desk light</button>
+          </div>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="resultsWrap">
+      <div id="results" class="results-grid" aria-live="polite" aria-busy="false"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="muted-box">Prepared for demo. Replace your CSV with the Kaggle dataset in <code>app/data/</code>. The UI is responsive for mobile, tablet and desktop.</div>
+    </div>
+  </footer>
+
+  <template id="card-template">
+    <article class="card" tabindex="0">
+      <div class="thumb" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M13 5a3 3 0 1 0-2 0v1a7 7 0 0 0-7 7v2h16v-2a7 7 0 0 0-7-7Z"/></svg>
+      </div>
+      <div class="content">
+        <h3 class="title"></h3>
+        <p class="desc"></p>
+        <p class="meta"></p>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    const btn = document.getElementById('searchBtn');
+    const input = document.getElementById('query');
+    const resultsDiv = document.getElementById('results');
+    const statusEl = document.getElementById('status');
+    const cardTpl = document.getElementById('card-template');
+
+    // Suggestion chips
+    document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+      input.value = ch.dataset.q; doSearch();
+    }));
+
+    // Events
+    btn.addEventListener('click', doSearch);
+    input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); doSearch(); }});
+
+    // Debounce typing for live search (optional feel)
+    let tId = null;
+    input.addEventListener('input', () => {
+      clearTimeout(tId);
+      const q = input.value.trim();
+      if(q.length < 3){ setStatus(''); return; }
+      tId = setTimeout(() => doSearch(true), 350);
+    });
+
+    function setStatus(msg, type=''){
+      statusEl.textContent = msg;
+      statusEl.className = `status ${type}`.trim();
+    }
+
+    function setBusy(b){
+      resultsDiv.setAttribute('aria-busy', String(b));
+    }
+
+    function showSkeletons(n=6){
+      resultsDiv.innerHTML = '';
+      const frag = document.createDocumentFragment();
+      for(let i=0;i<n;i++){
+        const sk = document.createElement('article');
+        sk.className = 'card';
+        sk.innerHTML = `
+          <div class="thumb skeleton"></div>
+          <div class="content">
+            <div class="skeleton" style="height:18px; width:70%; border-radius:8px"></div>
+            <div class="skeleton" style="height:12px; width:95%; border-radius:6px; margin-top:10px"></div>
+            <div class="skeleton" style="height:12px; width:80%; border-radius:6px; margin-top:8px"></div>
+          </div>`;
+        frag.appendChild(sk);
+      }
+      resultsDiv.appendChild(frag);
+    }
+
+    async function doSearch(isLive = false) {
+      const q = input.value.trim();
+      if(!q){ setStatus('Please enter a search term.'); return; }
+      setBusy(true);
+      setStatus(isLive ? 'Searching…' : 'Searching…');
+      showSkeletons();
+      try {
+        const resp = await fetch('/search', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({query: q})
+        });
+        if(!resp.ok){ throw new Error('Server error'); }
+        const data = await resp.json();
+        renderResults(Array.isArray(data) ? data : []);
+      } catch(err){
+        console.error(err);
+        resultsDiv.innerHTML = '';
+        setStatus('Search request failed. Please try again.', 'err');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function renderResults(items){
+      resultsDiv.innerHTML = '';
+      if(!items.length){ setStatus('No results found.', 'err'); return; }
+      setStatus(`${items.length} result${items.length>1?'s':''} found`, 'ok');
+      const frag = document.createDocumentFragment();
+      for(const item of items){
+        const node = cardTpl.content.firstElementChild.cloneNode(true);
+        const title = node.querySelector('.title');
+        const desc = node.querySelector('.desc');
+        const meta = node.querySelector('.meta');
+        const thumb = node.querySelector('.thumb');
+
+        // Optional: use image_url if your API provides it
+        if(item.image_url){
+          thumb.innerHTML = '';
+          const img = new Image();
+          img.src = item.image_url; img.alt = item.product_name || 'Lighting product image';
+          img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover';
+          thumb.appendChild(img);
+        }
+
+        title.textContent = item.product_name || 'Untitled product';
+        desc.textContent = item.description || '—';
+        const material = item.material || 'N/A';
+        const finish = item.finish || 'N/A';
+        meta.innerHTML = `<strong>Material:</strong> ${material} &nbsp; • &nbsp; <strong>Finish:</strong> ${finish}`;
+
+        frag.appendChild(node);
+      }
+      resultsDiv.appendChild(frag);
+    }
+
+    // Optional: initial demo results for empty page feel
+    (function seed(){
+      const demo = [
+        {product_name:'Scandi Wooden Table Lamp', description:'Minimal beech wood body with warm linen shade for cozy desks.', material:'Beech wood', finish:'Matte', image_url:''},
+        {product_name:'Brass Halo Chandelier', description:'Elegant 8-arm chandelier with dimmable LED rings.', material:'Brass', finish:'Polished', image_url:''},
+        {product_name:'Arc LED Floor Lamp', description:'Slim arched profile with flicker‑free LEDs for living rooms.', material:'Aluminum', finish:'Black anodized', image_url:''},
+      ];
+      renderResults(demo);
+    })();
+  </script>
+</body>
+</html>
