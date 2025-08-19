@@ -1,6 +1,6 @@
 # 💡 Lighting Store — Semantic Search Demo
 
-This project is a **semantic product search web app** for Saas Instrument Oy.  
+This project is a **client-ready semantic product search web app** for a lighting store.  
 It demonstrates how customers can search products using **natural queries** (e.g., *"wooden lamp"*, *"brass chandelier"*).
 
 ---
@@ -13,23 +13,22 @@ It demonstrates how customers can search products using **natural queries** (e.g
   - Animated loading skeletons
   - Live feedback messages
 - **Attractive, polished design** with dark/light theme support.
-- **Client-ready demo data** (replace with real product CSV from Kaggle).
+- **Client-ready demo data** (replace with real product CSV).
 
 ---
 
 ## 📂 Project Structure
 ```
-01_semantic_search_lighting_store_client_ready/
+semantic_search_lighting_store_client_ready/
 │── app/
-│   ├── data/               # CSV dataset goes here
-│   ├── model/              # Precomputed TF-IDF model (optional)
-│   ├── server.py           # Flask backend
-│── static/
-│   ├── style.css           # Styling (if separated)
-│── templates/
-│   ├── index.html          # UI (Responsive front-end)
-│── run.py                  # Entry point to run app
-│── README.md               # Project documentation
+│   ├── data/                       # CSV dataset (sample: products_demo.csv)
+│   ├── templates/                  # Frontend (index.html)
+│   ├── utils/                      # Search engine logic
+│   │    └── search_engine.py
+│   ├── routes.py                   # Flask routes (API endpoints)
+│── run.py                          # Entry point to run app
+│── requirements.txt                # Dependencies list
+│── README.md                       # Project documentation (this file)
 ```
 
 ---
@@ -64,12 +63,18 @@ The app will be available at: **http://127.0.0.1:5000/**
 
 ## 📊 Data
 - Place your **products dataset CSV** inside `app/data/` folder.
-- Ensure it has columns like: `product_name, description, material, finish, image_url (optional)`.
+- Example provided: `products_demo.csv`
+- Required columns:  
+  - `product_name`  
+  - `description`  
+  - `material`  
+  - `finish`  
+  - `image_url` *(optional)*
 
 ---
 
 ## 🎨 UI Preview
-- Sticky glassmorphic header
+- Sticky glassmorphic header with branding
 - Responsive product grid cards
 - Suggestion chips for quick queries
 - Smooth animations and loading skeletons
@@ -84,8 +89,7 @@ The app will be available at: **http://127.0.0.1:5000/**
 ---
 
 ## 📜 License
-This project is provided as a **demo client deliverable**.  
-You may customize and extend for real production deployments.
+This project is made for: https://saas.fi/
 
 ---
 ✨ Prepared with care, by the grace of Allah.
